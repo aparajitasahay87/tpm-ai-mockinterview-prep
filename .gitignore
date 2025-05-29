@@ -1,0 +1,39 @@
+# Root .gitignore for mockinterview-app project
+
+# --- Dependencies & Build Artifacts (apply anywhere in subdirectories) ---
+# node_modules directories anywhere in the project
+**/node_modules/
+
+# build/dist/out folders (e.g., from Create React App, Webpack, Babel)
+**/build/
+**/dist/
+**/out/
+**/tmp/
+
+# Environment variables (CRITICAL - applies to .env files anywhere)
+**/.env* # Matches .env, .env.local, .env.development.local, etc.
+
+# npm/yarn debug logs
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+/.pnp
+.pnp.js
+
+# --- Python related ignores (for Python backend services) ---
+# Python virtual environments
+**/venv/
+.Python/
+
+# Compiled Python files
+**/*.pyc
+**/__pycache__/
+
+# --- Test/Coverage related ignores ---
+**/coverage/ # Matches coverage folder anywhere
+
+# --- IDE and OS specific files ---
+.DS_Store          # macOS
+.idea/             # JetBrains IDEs
+.vscode/           # VS Code settings (optional: you might want to commit some workspace settings)
+*.log              # General log files

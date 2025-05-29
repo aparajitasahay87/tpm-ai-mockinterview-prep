@@ -1,0 +1,184 @@
+/* src/App.css */
+
+/* Basic Reset & Box Sizing */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f7f6; /* Light background for comfort */
+    min-height: 100vh; /* Ensure body takes full viewport height */
+    display: flex; /* For basic vertical centering if needed, or sticky footer */
+    flex-direction: column;
+}
+
+/* App Container for overall layout (below Navbar) */
+.app-container {
+    max-width: 1200px; /* Max width for content readability */
+    margin: 0 auto; /* Center the container */
+    padding: 20px;
+    flex-grow: 1; /* Allow main content to expand */
+    width: 100%; /* Ensure it takes full width within max-width */
+}
+
+/* Navbar styles (if you want to apply them here, or keep in Navbar.css) */
+/* .app-header and .main-nav styles from previous response would go here or in Navbar.css */
+/* For your Navbar component, you'd apply styling to its internal elements */
+/* Example for your existing Navbar if it renders a <nav> element: */
+.main-nav { /* Apply this to your Navbar's outer element */
+    background-color: #2c3e50; /* Darker blue */
+    color: #ecf0f1; /* Light gray text */
+    padding: 15px 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* max-width: 1200px;  If Navbar is full-width, don't limit width here, or center its content */
+    /* margin: 0 auto; */
+}
+
+.main-nav .logo { /* Assuming your Navbar has a logo link with this class */
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ecf0f1;
+    text-decoration: none;
+}
+
+.main-nav ul { /* Assuming your Navbar has an unordered list for links */
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.main-nav a, .main-nav button { /* Assuming your Navbar has links and buttons */
+    color: #ecf0f1;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.main-nav a:hover, .main-nav button:hover {
+    background-color: #34495e; /* Slightly lighter dark blue */
+}
+
+
+/* Main Content Area */
+.app-main {
+    padding: 40px 0;
+    flex-grow: 1; /* Allows main content to take available space */
+}
+
+.page-section { /* Apply this to main content sections within your pages */
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+.page-section h1 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+/* Buttons (General styles) */
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.primary-btn {
+    background-color: #3498db; /* A vibrant blue */
+    color: white;
+}
+
+.primary-btn:hover {
+    background-color: #2980b9; /* Darker blue on hover */
+    transform: translateY(-1px);
+}
+
+.secondary-btn {
+    background-color: #ecf0f1; /* Light gray */
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+.secondary-btn:hover {
+    background-color: #bdc3c7; /* Darker gray on hover */
+    transform: translateY(-1px);
+}
+
+/* Form Elements */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+    font-family: inherit;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Footer */
+.app-footer {
+    background-color: #34495e; /* Slightly lighter than header */
+    color: #ecf0f1;
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px; /* Space from main content */
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+}
+
+/* Responsive Design - Basic Media Query */
+@media (max-width: 768px) {
+    /* Adjust Navbar layout for small screens if needed */
+    .main-nav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .main-nav ul {
+        flex-direction: column;
+        width: 100%;
+        margin-top: 15px;
+        gap: 10px;
+    }
+    .main-nav ul li {
+        width: 100%;
+    }
+    .main-nav a, .main-nav button {
+        display: block;
+        width: 100%;
+        text-align: left;
+    }
+    .app-container {
+        padding: 10px;
+    }
+    .page-section {
+        padding: 20px;
+    }
+}
