@@ -34,4 +34,4 @@ app.listen(actualPort, () => {
         console.error('CRITICAL ERROR: JWT_SECRET_KEY environment variable is NOT set!');
         process.exit(1); // Exit if secret key is missing
     }
-});
+})
