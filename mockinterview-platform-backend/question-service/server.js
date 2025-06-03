@@ -8,19 +8,19 @@ const db = require('./config/database');
 
 const cors = require('cors');
 const app = express();
-const port = process.env.PORT || 3001;
+ 
+const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3000'];
 
-  // Enable CORS for your frontend origin
 app.use(cors({
-  origin: 'http://localhost:3000',  // your React frontend URL
-  credentials: true                 // if you use cookies/auth headers
+  origin: allowedOrigins,
+  credentials: true // Important if you're sending cookies or authorization headers
 }));
 
 app.use(express.json());
+app.use('/api/auth', authRoutes);
 app.use(authenticate);
 
-// Routes
-app.use('/api/auth', authRoutes); // Add the auth routes
+
 app.use('/api/questions', questionRoutes);
 //app.use('/api', questionRoutes); // Mount question routes directly under /api
 
@@ -44,9 +44,10 @@ db.connect()
   //.catch(err => console.error('Failed to connect to Redis:', err));
 
 
+const actualPort = process.env.PORT || 3001;
 
-app.listen(port, () => {
-  console.log(`Question service listening on port ${port}`);
+app.listen(actualPort, () => {
+  console.log(`Question Service running on port ${actualPort}`);
 });
 
 // Graceful shutdown
