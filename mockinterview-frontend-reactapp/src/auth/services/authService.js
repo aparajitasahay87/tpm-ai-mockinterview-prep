@@ -1,6 +1,6 @@
 export async function verifyFirebaseToken(firebaseToken) {
  // const response = await fetch('http://localhost:4001/auth/verify-firebase', {
- const response = await fetch('http://https://auth-service-3fjn.onrender.com/auth/verify-firebase', {
+ const response = await fetch('https://auth-service-3fjn.onrender.com/auth/verify-firebase', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ firebaseIdToken: firebaseToken }),

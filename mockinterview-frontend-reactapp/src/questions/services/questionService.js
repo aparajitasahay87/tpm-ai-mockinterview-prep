@@ -2,7 +2,7 @@
 //const API_BASE = 'http://localhost:3001/api';
 //const AUTH_API_BASE = 'http://localhost:4001/api'; // Base URL for auth service
 
-const API_BASE = 'https://mockinterview-frontend.onrender.com';
+const API_BASE = 'https://question-service-yerz.onrender.com';
 const AUTH_API_BASE = 'https://auth-service-3fjn.onrender.com'; // Base URL for auth service
 // Get fresh token each time to avoid using stale tokens
 const getAuthHeaders = () => {
