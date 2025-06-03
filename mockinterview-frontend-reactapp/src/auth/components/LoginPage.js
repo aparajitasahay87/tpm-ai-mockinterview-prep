@@ -13,28 +13,28 @@ const LoginPage = () => {
     setIsLoggingIn(true);
     setError(""); // Clear any previous errors
     try {
-      //Login With Google
-      // await signInWithPopup(auth, googleAuthProvider);
-      // The auth state change will be handled by onAuthStateChanged in App.js
-     // navigate("/test-api"); // Redirect to the main app area after login
-      //console.log("Logged in with Google");
-       const userCredential = await signInWithPopup(auth, googleAuthProvider);
-       console.log("User credential:", userCredential);
-       const user = userCredential.user;
-if (!user) {
-  throw new Error("No user returned from Firebase signIn");
-}
+      const userCredential = await signInWithPopup(auth, googleAuthProvider);
+      console.log("User credential:", userCredential);
+      const user = userCredential.user;
+      if (!user) {
+        throw new Error("No user returned from Firebase signIn");
+      }
       const firebaseToken = await userCredential.user.getIdToken();
       console.log("Firebase ID token:", firebaseToken);
 
-      //const appToken = await verifyFirebaseToken(firebaseToken);
-      //if (!appToken) throw new Error("Failed to verify Firebase token");
-      const { token, refreshToken } = await verifyFirebaseToken(firebaseToken);
-if (!token || !refreshToken) throw new Error("Missing token data from backend");
+      // ⭐⭐⭐ CRITICAL FIX HERE ⭐⭐⭐
+      // Change 'token' to 'appToken' to match the backend response property name
+      const { appToken, refreshToken } = await verifyFirebaseToken(firebaseToken);
 
-console.log("JWT saved to localStorage: Token : RefreshToken", token , refreshToken);
-     
-      //navigate("/test-api");
+      if (!appToken || !refreshToken) { // Check for appToken instead of token
+          throw new Error("Missing token data from backend");
+      }
+
+      console.log("JWT saved to localStorage: AppToken : RefreshToken", appToken, refreshToken);
+
+      // Assuming successful login, you might want to redirect to the dashboard or categories page
+      navigate("/categories"); // Or wherever your main app page is after login
+
     } catch (err) {
       console.error("Login failed", err);
       setError("Login failed. Please try again.");
@@ -45,7 +45,7 @@ console.log("JWT saved to localStorage: Token : RefreshToken", token , refreshTo
 
   return (
     <div>
-     
+      <h2>Login</h2>
       <button onClick={handleLogin} disabled={isLoggingIn}>
         {isLoggingIn ? "Logging in..." : "Login with Google"}
       </button>
