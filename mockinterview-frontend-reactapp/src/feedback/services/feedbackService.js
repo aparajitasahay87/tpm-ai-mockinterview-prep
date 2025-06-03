@@ -1,12 +1,15 @@
 
 
-export const getAIAnalysisWithToken = async (payload, appToken) => {
+const FEEDBACK_API_BASE_URL = process.env.REACT_APP_FEEDBACK_API_URL;
 
+if (!FEEDBACK_API_BASE_URL) {
+  console.error("REACT_APP_FEEDBACK_API_URL is not defined. Check your .env file or Render environment variables.");
+  throw new Error("Feedback API URL not configured.");
+}
+export const getAIAnalysisWithToken = async (payload, appToken) => {
     console.log("Frontend Feedback Service: Sending to backend:", payload);
-    //const API_BASE_URL = 'http://localhost:5000/api';
-     const API_BASE_URL = 'https://feedback-service-krjy.onrender.com'; // 👈 Make sure this matches your backend
   try {
-    const result = await fetch(`${API_BASE_URL}/feedback`, {
+    const result = await fetch(`${FEEDBACK_API_BASE_URL}/feedback`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -41,9 +44,7 @@ export const getAIAnalysisWithToken = async (payload, appToken) => {
 };
 
 export const saveFeedbackWithToken = async (userAnswer, overallAiFeedback, appToken, questionId, detailedAiFeedback) => {
-  const API_BASE_URL = 'http://localhost:5000/api'; // response-service
-
-  console.log("Frontend Feedback Service: Saving user response and detailed AI feedback to ai_feedback table.");
+  
 
   try {
         const payload = {
@@ -53,7 +54,7 @@ export const saveFeedbackWithToken = async (userAnswer, overallAiFeedback, appTo
             detailedAiFeedback: detailedAiFeedback // The full detailed object
         };
 
-    const result = await fetch(`${API_BASE_URL}/feedback/save-response`, {
+    const result = await fetch(`${FEEDBACK_API_BASE_URL}/feedback/save-response`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

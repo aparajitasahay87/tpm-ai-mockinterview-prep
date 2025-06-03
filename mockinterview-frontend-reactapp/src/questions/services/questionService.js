@@ -1,9 +1,19 @@
 // questionService.js
-//const API_BASE = 'http://localhost:3001/api';
-//const AUTH_API_BASE = 'http://localhost:4001/api'; // Base URL for auth service
+// ⭐⭐⭐ CRITICAL FIX: Use environment variables for API base URLs ⭐⭐⭐
+const API_BASE = process.env.REACT_APP_QUESTION_API_URL;
+const AUTH_API_BASE = process.env.REACT_APP_AUTH_API_URL; // Base URL for auth service
 
-const API_BASE = 'https://question-service-yerz.onrender.com';
-const AUTH_API_BASE = 'https://auth-service-3fjn.onrender.com'; // Base URL for auth service
+// Add checks to ensure they are defined (good practice)
+if (!API_BASE) {
+  console.error("REACT_APP_QUESTION_API_URL is not defined. Check your .env file or Render environment variables.");
+  throw new Error("Question API URL not configured.");
+}
+if (!AUTH_API_BASE) {
+  console.error("REACT_APP_AUTH_API_URL is not defined. Check your .env file or Render environment variables.");
+  throw new Error("Authentication API URL not configured.");
+}
+
+
 // Get fresh token each time to avoid using stale tokens
 const getAuthHeaders = () => {
   const token = localStorage.getItem('appToken');
