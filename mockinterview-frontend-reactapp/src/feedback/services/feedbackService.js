@@ -3,7 +3,8 @@
 export const getAIAnalysisWithToken = async (payload, appToken) => {
 
     console.log("Frontend Feedback Service: Sending to backend:", payload);
-    const API_BASE_URL = 'http://localhost:5000/api'; // 👈 Make sure this matches your backend
+    //const API_BASE_URL = 'http://localhost:5000/api';
+     const API_BASE_URL = 'https://feedback-service-krjy.onrender.com'; // 👈 Make sure this matches your backend
   try {
     const result = await fetch(`${API_BASE_URL}/feedback`, {
       method: 'POST',
