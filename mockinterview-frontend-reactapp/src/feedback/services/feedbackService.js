@@ -60,6 +60,7 @@ export const saveFeedbackWithToken = async (userAnswer, overallAiFeedback, appTo
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${appToken}`,
       },
+      credentials: 'include', 
       body: JSON.stringify(payload),
     });
 
@@ -74,7 +75,7 @@ export const saveFeedbackWithToken = async (userAnswer, overallAiFeedback, appTo
       throw new Error(errorMessage);
     }
 
-    const data = result.json(); // or just return true for success
+    const data = await result.json(); // or just return true for success
      console.log("Frontend Feedback Service: Feedback saved successfully to ai_feedback:", data);
         return data;
   } catch (error) {
