@@ -3,7 +3,15 @@ const { Pool } = require('pg');
 
 const poolConfig = {
   connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  },
+  // Additional connection settings for better reliability
+  max: 20, // Maximum number of clients in the pool
+  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
+  connectionTimeoutMillis: 2000, 
 };
+
 
 const pool = new Pool(poolConfig);
 
