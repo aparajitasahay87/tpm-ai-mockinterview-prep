@@ -15,7 +15,7 @@ export const useAnswerSubmission = (questionId, userAnswer) => {
       setSubmitStatus('Please enter an answer.');
       return;
     }
-    setSubmitStatus('Submitting...');
+    setSubmitStatus('Analyzing your response with AI...');
     setAiFeedback(null);
     setShowSaveButton(false);
     setSaveStatus('');
@@ -65,9 +65,7 @@ export const useAnswerSubmission = (questionId, userAnswer) => {
         console.error('No custom appToken found in localStorage. User might not be fully authenticated with your backend.');
         setSaveStatus('Authentication failed. Please log in again to save.');
         return;
-      <button onClick={handleSaveResponse} className="secondary-btn" style={{ marginLeft: '10px' }}>
-          Save Response
-      </button>
+    
       }
 
       await saveFeedbackWithToken(
