@@ -3,7 +3,11 @@ const { Pool } = require('pg');
 
 const poolConfig = {
   connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false // Required for Render's self-signed certificates in development/some environments
+  }
 };
+
 
 const pool = new Pool(poolConfig);
 
