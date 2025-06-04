@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getCategories } from '../questions/services/questionService'; // Corrected path based on previous context
+import { getCategories } from '../services/questionService'; // Corrected path based on previous context
 import { useNavigate } from 'react-router-dom';
 
 function CategoryList({ onSelectCategory }) {
