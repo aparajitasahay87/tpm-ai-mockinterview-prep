@@ -28,7 +28,7 @@ exports.getInterviewFeedback = async (req, res) => {
         
         // Check if user is admin
         const userResult = await query(
-            'SELECT isAdmin FROM users WHERE uid = $1',
+            'SELECT isadmin FROM users WHERE uid = $1',
             [userId]
         );
 
@@ -62,6 +62,7 @@ exports.getInterviewFeedback = async (req, res) => {
         } else {
             logger.info(`Backend: Admin user ${userId} detected. No feedback limits applied.`);
         }
+         // ⭐ END: User eligibility check
 
        logger.info('Backend: Attempting to fetch original question and its category from DB...');
 const questionResult = await query(
