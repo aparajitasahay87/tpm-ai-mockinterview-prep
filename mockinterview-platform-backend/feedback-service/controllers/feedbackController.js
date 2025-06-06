@@ -3,28 +3,28 @@
 const openAIService = require('../services/openaiService');
 const AIFeedbackProcessor = require('../processors/AIfeedbackProcessor');
 const { query } = require('../config/database');
-const logger = require('../../shared-lib/logger');
+//const console.log = require('../../shared-lib/logger');
 
 exports.getInterviewFeedback = async (req, res) => {
     const { questionId, userAnswer } = req.body;
      const userId = req.user ? req.user.uid : null;
 
-    logger.info('Backend: Received request for feedback.', { questionId, userAnswer: userAnswer.substring(0, 50) });
+    console.log('Backend: Received request for feedback.', { questionId, userAnswer: userAnswer.substring(0, 50) });
 
     if (!questionId || !userAnswer) {
-        logger.error('Backend: Missing questionId or userAnswer.');
+        console.log('Backend: Missing questionId or userAnswer.');
         return res.status(400).json({ error: 'Question ID and user answer are required for feedback.' });
     }
 
     if (!userId) {
-        logger.error('Backend: User ID is missing from token. Cannot process feedback request.');
+        console.log('Backend: User ID is missing from token. Cannot process feedback request.');
         return res.status(401).json({ error: 'Authentication required: User ID missing.' });
     }
 
     try {
 
        // Check user's admin status and feedback count
-        logger.info('Backend: Checking user eligibility for AI feedback...');
+        console.log('Backend: Checking user eligibility for AI feedback...');
         
         // Check if user is admin
         const userResult = await query(
@@ -33,7 +33,7 @@ exports.getInterviewFeedback = async (req, res) => {
         );
 
         if (userResult.rows.length === 0) {
-            logger.error('Backend: User not found for ID:', userId);
+            console.log('Backend: User not found for ID:', userId);
             return res.status(404).json({ error: 'User not found.' });
         }
 
@@ -50,7 +50,7 @@ exports.getInterviewFeedback = async (req, res) => {
             const feedbackCount = parseInt(feedbackCountResult.rows[0].feedback_count);
             
             if (feedbackCount >= 2) {
-                logger.warn(`Backend: User ${userId} has already received ${feedbackCount} AI feedbacks. Limit exceeded.`);
+                console.log(`Backend: User ${userId} has already received ${feedbackCount} AI feedbacks. Limit exceeded.`);
                 return res.status(403).json({ 
                     error: 'You have reached the maximum limit of 2 AI feedback sessions.' 
                 });
@@ -58,13 +58,13 @@ exports.getInterviewFeedback = async (req, res) => {
 
          
 
-        logger.info(`Backend: User eligibility confirmed. Current feedback count: ${feedbackCount}/2`);
+        console.log.info(`Backend: User eligibility confirmed. Current feedback count: ${feedbackCount}/2`);
         } else {
-            logger.info(`Backend: Admin user ${userId} detected. No feedback limits applied.`);
+            console.log(`Backend: Admin user ${userId} detected. No feedback limits applied.`);
         }
          // ⭐ END: User eligibility check
 
-       logger.info('Backend: Attempting to fetch original question and its category from DB...');
+       console.log('Backend: Attempting to fetch original question and its category from DB...');
 const questionResult = await query(
     `SELECT
         content,
@@ -78,19 +78,19 @@ const questionResult = await query(
 );
 
         if (questionResult.rows.length === 0) {
-            logger.error('Backend: Original question not found for ID:', questionId);
+            console.log('Backend: Original question not found for ID:', questionId);
             return res.status(404).json({ error: 'Original question not found to provide feedback context.' });
         }
         const { content: originalQuestionContent, category_id, category_name } = questionResult.rows[0];
-        logger.info(`Backend: Question content fetched for category ${category_name}.`);
+        console.log(`Backend: Question content fetched for category ${category_name}.`);
 
-        logger.info('Backend: Attempting to fetch feedback criteria for category...');
+        console.log('Backend: Attempting to fetch feedback criteria for category...');
         const categoryCriteriaResult = await query(
             'SELECT feedback_criteria FROM categories WHERE category_id = $1',
             [category_id]
         );
         const fullCategoryCriteria = categoryCriteriaResult.rows[0]?.feedback_criteria || {};
-        logger.debug('Backend: Full category criteria (JSONB):', JSON.stringify(fullCategoryCriteria).substring(0, 200) + '...');
+        console.log('Backend: Full category criteria (JSONB):', JSON.stringify(fullCategoryCriteria).substring(0, 200) + '...');
 
         let overallGuidelines = "";
         let specificCriteriaPointers = "";
@@ -105,7 +105,7 @@ const questionResult = await query(
         }
 
         // ⭐ CRITICAL: Pass individual prompt components to openAIService.generateFeedback
-        logger.info('Backend: Calling OpenAI Service with individual prompt components...');
+        console.log('Backend: Calling OpenAI Service with individual prompt components...');
         const rawAiResponse = await openAIService.generateFeedback(
             originalQuestionContent,
             userAnswer,
@@ -113,11 +113,11 @@ const questionResult = await query(
             specificCriteriaPointers,
             redFlagsToAvoid
         );
-        logger.debug('Backend: Raw feedback from OpenAI (partial):', rawAiResponse.substring(0, 500) + '...');
+        console.log('Backend: Raw feedback from OpenAI (partial):', rawAiResponse.substring(0, 500) + '...');
 
-        logger.info('Backend: Processing raw feedback...');
+        console.log('Backend: Processing raw feedback...');
         const processedFeedback = AIFeedbackProcessor.processFeedback(rawAiResponse);
-        logger.debug('Backend: Processed feedback:', JSON.stringify(processedFeedback).substring(0, 200) + '...');
+        console.log('Backend: Processed feedback:', JSON.stringify(processedFeedback).substring(0, 200) + '...');
 
         // This response structure must remain EXACTLY as the frontend expects.
         // It relies on AIFeedbackProcessor returning { overallFeedback: { rawContent: string }, detailedFeedback: string }
@@ -125,10 +125,10 @@ const questionResult = await query(
             overallFeedback: processedFeedback.overallFeedback.rawContent,
             detailedFeedback: processedFeedback.detailedFeedback
         });
-        logger.info('Backend: Sent processed feedback details to frontend.');
+        console.log('Backend: Sent processed feedback details to frontend.');
 
     } catch (error) {
-        logger.error('Backend: Caught error during feedback processing:', error);
+        console.log('Backend: Caught error during feedback processing:', error);
         if (error.message.includes('Failed to generate feedback')) {
             return res.status(502).json({ error: error.message });
         }
@@ -143,11 +143,11 @@ exports.saveUserResponse = async (req, res) => {
 
     const { questionId, userAnswer, overallAiFeedback, detailedAiFeedback } = req.body;
 
-    logger.info('Backend: Received request to save user response and detailed AI feedback.');
-    logger.debug({ userId, questionId, userAnswer: userAnswer.substring(0, 50), overallAiFeedback: overallAiFeedback.substring(0, 50), detailedAiFeedback: detailedAiFeedback.substring(0, 50) });
+    console.log('Backend: Received request to save user response and detailed AI feedback.');
+    console.log({ userId, questionId, userAnswer: userAnswer.substring(0, 50), overallAiFeedback: overallAiFeedback.substring(0, 50), detailedAiFeedback: detailedAiFeedback.substring(0, 50) });
 
     if (!userId) {
-        logger.error('Backend: User ID is missing from token. Cannot save response.');
+        console.log('Backend: User ID is missing from token. Cannot save response.');
         return res.status(401).json({ error: 'Authentication required: User ID missing.' });
     }
 
@@ -158,7 +158,7 @@ exports.saveUserResponse = async (req, res) => {
     const extractedImprovementAreas = AIFeedbackProcessor.extractImprovementAreas(detailedAiFeedback);
 
     if (!questionId || !userAnswer || !overallAiFeedback || !detailedAiFeedback) {
-        logger.error('Backend: Missing required data for saving to ai_feedback. Expected: questionId, userAnswer, overallAiFeedback, detailedAiFeedback (string).');
+        console.log('Backend: Missing required data for saving to ai_feedback. Expected: questionId, userAnswer, overallAiFeedback, detailedAiFeedback (string).');
         return res.status(400).json({ error: 'Missing required data to save response and detailed feedback.' });
     }
 
@@ -191,10 +191,10 @@ exports.saveUserResponse = async (req, res) => {
             detailedAiFeedback
         ];
 
-        logger.info('Backend: Attempting to save data to ai_feedback table...');
+        console.log('Backend: Attempting to save data to ai_feedback table...');
         const result = await query(insertAiFeedbackQuery, aiFeedbackValues);
         const newFeedbackId = result.rows[0].feedback_id;
-        logger.info('Backend: Data saved to ai_feedback. New feedback_id:', newFeedbackId);
+        console.log('Backend: Data saved to ai_feedback. New feedback_id:', newFeedbackId);
 
         res.status(201).json({
             message: 'Feedback and user response saved successfully to ai_feedback table',
