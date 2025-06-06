@@ -26,8 +26,8 @@ exports.verifyFirebaseToken = async (req, res) => {
             // User does NOT exist in your local DB, so create them
             console.log(`Auth Service: Creating new user in local DB for UID: ${uid}`);
             const insertUserQuery = `
-                INSERT INTO users (user_id, email, created_at, account_type, feedback_count)
-                VALUES ($1, $2, NOW(), 'free', 0)
+                INSERT INTO users (user_id, email, created_at, account_type, feedback_count,isadmin)
+                VALUES ($1, $2, NOW(), 'free', 0,false)
                 ON CONFLICT (user_id) DO NOTHING; -- Prevents errors if concurrent inserts happen
             `;
             await query(insertUserQuery, [uid, email]);
