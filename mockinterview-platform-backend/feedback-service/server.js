@@ -11,6 +11,10 @@ const app = express();
 
 const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3000'];
 
+// Add debug logging
+console.log('🔍 CORS_ORIGIN env var:', process.env.CORS_ORIGIN);
+console.log('🔍 Allowed origins:', allowedOrigins);
+
 app.use(cors({
   origin: allowedOrigins,
   credentials: true // Important if you're sending cookies or authorization headers

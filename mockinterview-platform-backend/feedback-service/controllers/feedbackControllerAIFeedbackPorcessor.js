@@ -7,7 +7,6 @@ const logger = require('../../shared-lib/logger');
 
 exports.getInterviewFeedback = async (req, res) => {
     const { questionId, userAnswer } = req.body;
-     const userId = req.user ? req.user.uid : null;
 
     logger.info('Backend: Received request for feedback.', { questionId, userAnswer: userAnswer.substring(0, 50) });
 
@@ -16,53 +15,7 @@ exports.getInterviewFeedback = async (req, res) => {
         return res.status(400).json({ error: 'Question ID and user answer are required for feedback.' });
     }
 
-    if (!userId) {
-        logger.error('Backend: User ID is missing from token. Cannot process feedback request.');
-        return res.status(401).json({ error: 'Authentication required: User ID missing.' });
-    }
-
     try {
-
-       // Check user's admin status and feedback count
-        logger.info('Backend: Checking user eligibility for AI feedback...');
-        
-        // Check if user is admin
-        const userResult = await query(
-            'SELECT isAdmin FROM users WHERE uid = $1',
-            [userId]
-        );
-
-        if (userResult.rows.length === 0) {
-            logger.error('Backend: User not found for ID:', userId);
-            return res.status(404).json({ error: 'User not found.' });
-        }
-
-        const { isadmin } = userResult.rows[0];
-
-          // Only check feedback limits for non-admin users
-        if (isadmin === false) {
-            // Check feedback count for regular users only
-            const feedbackCountResult = await query(
-                'SELECT COUNT(*) as feedback_count FROM ai_feedback WHERE user_id = $1',
-                [userId]
-            );
-
-            const feedbackCount = parseInt(feedbackCountResult.rows[0].feedback_count);
-            
-            if (feedbackCount >= 2) {
-                logger.warn(`Backend: User ${userId} has already received ${feedbackCount} AI feedbacks. Limit exceeded.`);
-                return res.status(403).json({ 
-                    error: 'You have reached the maximum limit of 2 AI feedback sessions.' 
-                });
-            }
-
-         
-
-        logger.info(`Backend: User eligibility confirmed. Current feedback count: ${feedbackCount}/2`);
-        } else {
-            logger.info(`Backend: Admin user ${userId} detected. No feedback limits applied.`);
-        }
-
        logger.info('Backend: Attempting to fetch original question and its category from DB...');
 const questionResult = await query(
     `SELECT

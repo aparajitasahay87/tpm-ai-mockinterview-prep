@@ -1,5 +1,3 @@
-// processors/AIfeedbackProcessor.js
-
 const logger = require('../../shared-lib/logger'); // Assuming your logger path is correct
 
 class AIFeedbackProcessor {
