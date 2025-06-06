@@ -3,9 +3,7 @@
    
 
     class OptimizedPromptBuilder {
-      constructor() {
-        // Cache for criteria templates can be added here if needed for further optimization
-      }
+     
 
       /**
        * Constructs the custom prompt for OpenAI's chat completion API,

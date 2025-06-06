@@ -1,7 +1,7 @@
 // services/openaiService.js
 
 const { OpenAI } = require('openai');
-const logger = require('../../shared-lib/logger');
+//const logger = require('../../shared-lib/logger');
 
 class OpenAIService {
   constructor() {
@@ -81,16 +81,16 @@ class OpenAIService {
           if (error.status === 429 || (error.status >= 500 && error.status < 600)) {
             retries++;
             if (retries > this.maxRetries) {
-              logger.error(
+              console.log(
                 `OpenAI API call failed after ${this.maxRetries} retries: ${error.message}`
               );
               throw error;
             }
             const delay = this.retryDelay * Math.pow(2, retries - 1);
-            logger.warn(`OpenAI API call failed, retrying in ${delay}ms... (${retries}/${this.maxRetries})`);
+        console.log(`OpenAI API call failed, retrying in ${delay}ms... (${retries}/${this.maxRetries})`);
             await new Promise((resolve) => setTimeout(resolve, delay));
           } else {
-            logger.error(
+            console.log(
               `OpenAI API client error: ${error.message} (Status: ${error.status})`
             );
             throw error;
@@ -105,7 +105,7 @@ class OpenAIService {
         !result.choices[0].message ||
         typeof result.choices[0].message.content !== 'string'
       ) {
-        logger.error('Invalid or unexpected response structure from OpenAI API.');
+        console.log('Invalid or unexpected response structure from OpenAI API.');
         throw new Error('Invalid response structure from OpenAI API');
       }
 
@@ -114,7 +114,7 @@ class OpenAIService {
 
       return feedbackJsonString;
     } catch (error) {
-      logger.error(`OpenAI Service error: ${error.message}`);
+      console.log(`OpenAI Service error: ${error.message}`);
       throw new Error(`Failed to generate feedback from OpenAI: ${error.message}`);
     }
   }

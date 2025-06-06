@@ -1,13 +1,10 @@
-// controllers/feedbackController.js
-
 const openAIService = require('../services/openaiService');
 const AIFeedbackProcessor = require('../processors/AIfeedbackProcessor');
 const { query } = require('../config/database');
-//const console.log = require('../../shared-lib/logger');
 
 exports.getInterviewFeedback = async (req, res) => {
     const { questionId, userAnswer } = req.body;
-     const userId = req.user ? req.user.uid : null;
+    const userId = req.user ? req.user.uid : null;
 
     console.log('Backend: Received request for feedback.', { questionId, userAnswer: userAnswer.substring(0, 50) });
 
@@ -22,10 +19,9 @@ exports.getInterviewFeedback = async (req, res) => {
     }
 
     try {
-
-       // Check user's admin status and feedback count
+        // Check user's admin status and feedback count
         console.log('Backend: Checking user eligibility for AI feedback...');
-        
+
         // Check if user is admin
         const userResult = await query(
             'SELECT isadmin FROM users WHERE uid = $1',
@@ -39,7 +35,7 @@ exports.getInterviewFeedback = async (req, res) => {
 
         const { isadmin } = userResult.rows[0];
 
-          // Only check feedback limits for non-admin users
+        // Only check feedback limits for non-admin users
         if (isadmin === false) {
             // Check feedback count for regular users only
             const feedbackCountResult = await query(
@@ -48,34 +44,32 @@ exports.getInterviewFeedback = async (req, res) => {
             );
 
             const feedbackCount = parseInt(feedbackCountResult.rows[0].feedback_count);
-            
+
             if (feedbackCount >= 2) {
                 console.log(`Backend: User ${userId} has already received ${feedbackCount} AI feedbacks. Limit exceeded.`);
-                return res.status(403).json({ 
-                    error: 'You have reached the maximum limit of 2 AI feedback sessions.' 
+                return res.status(403).json({
+                    error: 'You have reached the maximum limit of 2 AI feedback sessions.'
                 });
             }
 
-         
-
-        console.log.info(`Backend: User eligibility confirmed. Current feedback count: ${feedbackCount}/2`);
+            console.log(`Backend: User eligibility confirmed. Current feedback count: ${feedbackCount}/2`);
         } else {
             console.log(`Backend: Admin user ${userId} detected. No feedback limits applied.`);
         }
-         // ⭐ END: User eligibility check
+        // ⭐ END: User eligibility check
 
-       console.log('Backend: Attempting to fetch original question and its category from DB...');
-const questionResult = await query(
-    `SELECT
-        content,
-        category_id,
-        (SELECT name FROM categories WHERE category_id = q.category_id) AS category_name -- <--- CORRECTED LINE HERE
-    FROM
-        questions q
-    WHERE
-        question_id = $1`,
-    [questionId]
-);
+        console.log('Backend: Attempting to fetch original question and its category from DB...');
+        const questionResult = await query(
+            `SELECT
+                content,
+                category_id,
+                (SELECT name FROM categories WHERE category_id = q.category_id) AS category_name
+            FROM
+                questions q
+            WHERE
+                question_id = $1`,
+            [questionId]
+        );
 
         if (questionResult.rows.length === 0) {
             console.log('Backend: Original question not found for ID:', questionId);
@@ -97,7 +91,7 @@ const questionResult = await query(
         let redFlagsToAvoid = "";
 
         // This section extracts the criteria from the JSONB
-        const defaultCriteria = fullCategoryCriteria.default_category_criteria; // Assuming this structure
+        const defaultCriteria = fullCategoryCriteria.default_category_criteria;
         if (defaultCriteria) {
             overallGuidelines = defaultCriteria.overall_guidelines || "";
             specificCriteriaPointers = defaultCriteria.key_elements?.join(', ') || "";
@@ -140,7 +134,6 @@ const questionResult = await query(
 // and re-parse it for database storage, fulfilling the "no frontend changes" constraint.
 exports.saveUserResponse = async (req, res) => {
     const userId = req.user ? req.user.uid : null;
-
     const { questionId, userAnswer, overallAiFeedback, detailedAiFeedback } = req.body;
 
     console.log('Backend: Received request to save user response and detailed AI feedback.');
@@ -151,19 +144,17 @@ exports.saveUserResponse = async (req, res) => {
         return res.status(401).json({ error: 'Authentication required: User ID missing.' });
     }
 
-     
-    // Re-instantiate AIFeedbackProcessor to use its parsing methods for DB save
-    const extractedScore = AIFeedbackProcessor.extractScore(detailedAiFeedback);
-    const extractedStrengthPoints = AIFeedbackProcessor.extractStrengthPoints(detailedAiFeedback);
-    const extractedImprovementAreas = AIFeedbackProcessor.extractImprovementAreas(detailedAiFeedback);
-
     if (!questionId || !userAnswer || !overallAiFeedback || !detailedAiFeedback) {
         console.log('Backend: Missing required data for saving to ai_feedback. Expected: questionId, userAnswer, overallAiFeedback, detailedAiFeedback (string).');
         return res.status(400).json({ error: 'Missing required data to save response and detailed feedback.' });
     }
 
     try {
-        
+        // These extractions are performed correctly before the database insert
+        const extractedScore = AIFeedbackProcessor.extractScore(detailedAiFeedback);
+        const extractedStrengthPoints = AIFeedbackProcessor.extractStrengthPoints(detailedAiFeedback);
+        const extractedImprovementAreas = AIFeedbackProcessor.extractImprovementAreas(detailedAiFeedback);
+
         const insertAiFeedbackQuery = `
             INSERT INTO ai_feedback (
                 user_id,
@@ -184,10 +175,10 @@ exports.saveUserResponse = async (req, res) => {
             userId,
             questionId,
             userAnswer,
-             overallAiFeedback,
-             extractedStrengthPoints,   // <--- This should be a JS Array, directly
-        extractedImprovementAreas, 
-        extractedScore,
+            overallAiFeedback,
+            extractedStrengthPoints,
+            extractedImprovementAreas,
+            extractedScore,
             detailedAiFeedback
         ];
 

@@ -1,4 +1,4 @@
-const logger = require('../../shared-lib/logger'); // Assuming your logger path is correct
+//const logger = require('../../shared-lib/logger'); // Assuming your logger path is correct
 
 class AIFeedbackProcessor {
   /**
@@ -17,14 +17,14 @@ class AIFeedbackProcessor {
       // ⭐ CRITICAL CHANGE: Parse the raw string response from OpenAI
       parsedJson = JSON.parse(rawAiResponse);
     } catch (e) {
-      logger.error(`AIFeedbackProcessor: Failed to parse raw AI response as JSON: ${e.message}. Raw response: ${rawAiResponse}`);
+      console.log(`AIFeedbackProcessor: Failed to parse raw AI response as JSON: ${e.message}. Raw response: ${rawAiResponse}`);
       // Return a default structure consistent with what's expected, even on error
       return this.getDefaultErrorFeedback('Invalid AI response format.');
     }
 
     // Validate the expected structure from the AI's JSON output
     if (!parsedJson || typeof parsedJson.overallFeedback !== 'string' || typeof parsedJson.detailedFeedback !== 'string') {
-      logger.error(`AIFeedbackProcessor: Parsed JSON is missing expected string keys 'overallFeedback' or 'detailedFeedback'. Parsed: ${JSON.stringify(parsedJson)}`);
+      console.log(`AIFeedbackProcessor: Parsed JSON is missing expected string keys 'overallFeedback' or 'detailedFeedback'. Parsed: ${JSON.stringify(parsedJson)}`);
       return this.getDefaultErrorFeedback('AI response missing expected feedback keys.');
     }
 
@@ -88,7 +88,7 @@ class AIFeedbackProcessor {
     // This allows `feedbackController.js` to access it separately for the `saveUserResponse` call.
     processedStructure.detailedFeedbackForDb = detailedFeedbackForDb;
 
-    logger.info('AIFeedbackProcessor: Successfully processed AI feedback.');
+    console.log('AIFeedbackProcessor: Successfully processed AI feedback.');
     return processedStructure;
   }
 
