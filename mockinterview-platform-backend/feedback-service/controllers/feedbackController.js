@@ -24,7 +24,7 @@ exports.getInterviewFeedback = async (req, res) => {
 
         // Check if user is admin
         const userResult = await query(
-            'SELECT isadmin FROM users WHERE uid = $1',
+            'SELECT isadmin FROM users WHERE user_id = $1',
             [userId]
         );
 
