@@ -151,17 +151,11 @@ exports.saveUserResponse = async (req, res) => {
         return res.status(401).json({ error: 'Authentication required: User ID missing.' });
     }
 
-     const reParsedDetailedFeedback = {
-        feedback_content: overallAiFeedback,
-        // Call the methods directly on the imported AIFeedbackProcessor instance
-        strength_points: AIFeedbackProcessor.extractStrengthPoints(detailedAiFeedback),
-        improvement_areas: AIFeedbackProcessor.extractImprovementAreas(detailedAiFeedback),
-        score: AIFeedbackProcessor.extractScore(detailedAiFeedback),
-        full_detailed_text: detailedAiFeedback
-    };
-
+     
     // Re-instantiate AIFeedbackProcessor to use its parsing methods for DB save
-   
+    const extractedScore = AIFeedbackProcessor.extractScore(detailedAiFeedback);
+    const extractedStrengthPoints = AIFeedbackProcessor.extractStrengthPoints(detailedAiFeedback);
+    const extractedImprovementAreas = AIFeedbackProcessor.extractImprovementAreas(detailedAiFeedback);
 
     if (!questionId || !userAnswer || !overallAiFeedback || !detailedAiFeedback) {
         logger.error('Backend: Missing required data for saving to ai_feedback. Expected: questionId, userAnswer, overallAiFeedback, detailedAiFeedback (string).');
@@ -169,12 +163,7 @@ exports.saveUserResponse = async (req, res) => {
     }
 
     try {
-        const { feedback_content, strength_points, improvement_areas, score, full_detailed_text } = reParsedDetailedFeedback;
-
-       const extractedScore = AIFeedbackProcessor.extractScore(detailedAiFeedback);
-    const extractedStrengthPoints = AIFeedbackProcessor.extractStrengthPoints(detailedAiFeedback);
-    const extractedImprovementAreas = AIFeedbackProcessor.extractImprovementAreas(detailedAiFeedback);
-
+        
         const insertAiFeedbackQuery = `
             INSERT INTO ai_feedback (
                 user_id,
@@ -195,16 +184,11 @@ exports.saveUserResponse = async (req, res) => {
             userId,
             questionId,
             userAnswer,
-            feedback_content,
-            //strengthsString,
-            //improvementsString,
-           // JSON.stringify(strength_points),
-           // JSON.stringify(improvement_areas),
+             overallAiFeedback,
              extractedStrengthPoints,   // <--- This should be a JS Array, directly
         extractedImprovementAreas, 
         extractedScore,
-            //score,
-            full_detailed_text
+            detailedAiFeedback
         ];
 
         logger.info('Backend: Attempting to save data to ai_feedback table...');
