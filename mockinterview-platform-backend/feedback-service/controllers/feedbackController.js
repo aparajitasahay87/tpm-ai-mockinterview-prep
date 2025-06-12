@@ -1,7 +1,7 @@
 const openAIService = require('../services/openaiService');
 const AIFeedbackProcessor = require('../processors/AIfeedbackProcessor');
 // Import the EnhancedTextPreprocessor module
-const EnhancedTextPreprocessor = require('../processors/enhancedTextProcessor'); // Adjust path as needed
+const EnhancedTextPreprocessor = require('../processors/EnhancedTextProcessor'); // Adjust path as needed
 const textProcessor = new EnhancedTextPreprocessor(); // Instantiate the preprocessor
 
 const { query } = require('../config/database');
@@ -35,6 +35,8 @@ exports.getInterviewFeedback = async (req, res) => {
         const preprocessingResult = textProcessor.preprocessForOpenAI(userAnswer, preprocessingOptions);
         const processedUserAnswer = preprocessingResult.processedText;
 
+        // ⭐ ADD THIS LINE TO CHECK THE PROCESSED ANSWER:
+        console.log('Backend: Processed User Answer:', processedUserAnswer);
         // Log preprocessing results for debugging and analytics
         console.log('Backend: User answer preprocessing completed.', {
             originalTokens: preprocessingResult.originalStats.estimatedTokens,
