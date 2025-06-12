@@ -23,7 +23,7 @@ function App() {
     // ⭐ NEW: Function to open the external survey URL ⭐
   const handleOpenMarketSurvey = () => {
     // IMPORTANT: Replace this with your actual Google Forms (or other survey tool) URL
-    const surveyUrl = 'YOUR_GOOGLE_FORMS_SURVEY_LINK_HERE'; // <<< Don't forget to replace this!
+    const surveyUrl = 'https://forms.gle/DaFJyLcQJEwuZpck7'; // <<< Don't forget to replace this!
     window.open(surveyUrl, '_blank'); // Opens in a new tab
   };
 
