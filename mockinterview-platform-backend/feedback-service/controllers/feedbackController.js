@@ -1,5 +1,9 @@
 const openAIService = require('../services/openaiService');
 const AIFeedbackProcessor = require('../processors/AIfeedbackProcessor');
+// Import the EnhancedTextPreprocessor module
+const EnhancedTextPreprocessor = require('../processors/enhancedTextProcessor'); // Adjust path as needed
+const textProcessor = new EnhancedTextPreprocessor(); // Instantiate the preprocessor
+
 const { query } = require('../config/database');
 
 exports.getInterviewFeedback = async (req, res) => {
@@ -19,6 +23,36 @@ exports.getInterviewFeedback = async (req, res) => {
     }
 
     try {
+
+
+         // ⭐ NEW: Preprocess the user's answer before using it with OpenAI
+        console.log('Backend: Starting user answer preprocessing...');
+        const preprocessingOptions = {
+            maxLength: 4000,           // Max length of processed text
+            targetTokenReduction: 0.2, // Target 20% token reduction (can be adjusted)
+            aggressiveOptimization: false // Set to true for more aggressive reduction
+        };
+        const preprocessingResult = textProcessor.preprocessForOpenAI(userAnswer, preprocessingOptions);
+        const processedUserAnswer = preprocessingResult.processedText;
+
+        // Log preprocessing results for debugging and analytics
+        console.log('Backend: User answer preprocessing completed.', {
+            originalTokens: preprocessingResult.originalStats.estimatedTokens,
+            processedTokens: preprocessingResult.processedStats.estimatedTokens,
+            tokenReduction: preprocessingResult.tokenReduction + '%',
+            tokensSaved: preprocessingResult.tokensSaved,
+            securityIssues: preprocessingResult.securityIssues,
+            warnings: preprocessingResult.warnings,
+            optimizationsApplied: preprocessingResult.optimizations
+        });
+
+        // ⭐ OPTIONAL: If critical security threats are detected, you might choose to block the request.
+        // This provides an extra layer of defense, even after sanitization.
+        if (Object.values(preprocessingResult.securityIssues).some(arr => arr.length > 0)) {
+             console.warn('Backend: Blocking request due to detected security threats:', preprocessingResult.securityIssues);
+             return res.status(403).json({ error: 'Input contains potentially malicious content and was blocked.' });
+        }
+
         // Check user's admin status and feedback count
         console.log('Backend: Checking user eligibility for AI feedback...');
 
@@ -102,7 +136,8 @@ exports.getInterviewFeedback = async (req, res) => {
         console.log('Backend: Calling OpenAI Service with individual prompt components...');
         const rawAiResponse = await openAIService.generateFeedback(
             originalQuestionContent,
-            userAnswer,
+           // userAnswer,
+            processedUserAnswer,
             overallGuidelines,
             specificCriteriaPointers,
             redFlagsToAvoid
