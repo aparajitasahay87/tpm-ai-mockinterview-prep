@@ -1,7 +1,7 @@
 const openAIService = require('../services/openaiService');
 const AIFeedbackProcessor = require('../processors/AIfeedbackProcessor');
 // Import the EnhancedTextPreprocessor module
-const EnhancedTextPreprocessor = require('../processors/EnhancedTextProcessor'); // Adjust path as needed
+const EnhancedTextPreprocessor = require('../processors/EnhancedTextPreprocessor'); // Adjust path as needed
 const textProcessor = new EnhancedTextPreprocessor(); // Instantiate the preprocessor
 
 const { query } = require('../config/database');
