@@ -28,9 +28,9 @@ exports.getInterviewFeedback = async (req, res) => {
          // ⭐ NEW: Preprocess the user's answer before using it with OpenAI
         console.log('Backend: Starting user answer preprocessing...');
         const preprocessingOptions = {
-            maxLength: 4000,           // Max length of processed text
-            targetTokenReduction: 0.2, // Target 20% token reduction (can be adjusted)
-            aggressiveOptimization: false // Set to true for more aggressive reduction
+            maxLength: 1250,           // Max length of processed text
+            targetTokenReduction: 0.5, // Target 20% token reduction (can be adjusted)
+            aggressiveOptimization: true // Set to true for more aggressive reduction
         };
         const preprocessingResult = textProcessor.preprocessForOpenAI(userAnswer, preprocessingOptions);
         const processedUserAnswer = preprocessingResult.processedText;
@@ -52,8 +52,8 @@ exports.getInterviewFeedback = async (req, res) => {
         // This provides an extra layer of defense, even after sanitization.
         if (Object.values(preprocessingResult.securityIssues).some(arr => arr.length > 0)) {
              console.warn('Backend: Blocking request due to detected security threats:', preprocessingResult.securityIssues);
-             return res.status(403).json({ error: 'Input contains potentially malicious content and was blocked.' });
-        }
+             return res.status(403).json({ error: 'Your input contains special characters or patterns that were blocked for security. Please review and try again.'});
+        
 
         // Check user's admin status and feedback count
         console.log('Backend: Checking user eligibility for AI feedback...');

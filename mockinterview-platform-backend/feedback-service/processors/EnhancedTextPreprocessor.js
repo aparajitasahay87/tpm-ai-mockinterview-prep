@@ -80,7 +80,8 @@ class EnhancedTextPreprocessor {
                 /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|TRUNCATE)\b)/gi,
                 /(--|\/\*|\*\/)/g, // SQL comments
                 /(\b(OR|AND)\s+\d+\s*=\s*\d+)/gi, // Common boolean-based SQLi
-                /(\'|\";|\"|\'\s*(OR|AND))/gi, // Quote termination and logical ops
+                // ⭐ MODIFIED: Removed the single quote '\'' from this pattern
+                /(\";|\"|\s*(OR|AND))/gi, // Quote termination and logical ops
                 /(\bxp_cmdshell\b|\bsp_executesql\b)/gi, // Stored procedures
             ],
             xss: [
@@ -92,8 +93,8 @@ class EnhancedTextPreprocessor {
                 /<img[^>]*src\s*=\s*['"]?javascript:/gi // Image XSS
             ],
             command: [
-                // Command injection attempts
-                /(\||&|;|\$\(|\`)/g, // Shell metacharacters
+                // Command injection attempts (semicolon removed previously)
+                /(\||&|\$\(|\`)/g, // Shell metacharacters (pipe, ampersand, dollar-parentheses, backtick)
                 /(rm\s+-rf|del\s+\/f|format\s+)/gi, // Destructive commands
                 /(wget|curl)\s+http/gi, // External command execution
                 /(cat|ls|dir)\s+/gi // Information disclosure commands
@@ -207,7 +208,7 @@ class EnhancedTextPreprocessor {
         // This is crucial if there's any chance the input will be rendered in HTML
         sanitizedText = DOMPurify.sanitize(sanitizedText, {
             ALLOWED_TAGS: [], // No HTML tags allowed
-            ALLOWED_ATTR: []  // No HTML attributes allowed
+            ALLOWED_ATTR: []  // No HTML attributes allowed
         });
 
         // Remove more explicit injection patterns that might bypass initial escaping
