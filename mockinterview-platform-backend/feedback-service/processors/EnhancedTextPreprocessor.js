@@ -77,12 +77,20 @@ class EnhancedTextPreprocessor {
         this.securityPatterns = {
             sql: [
                 // Common SQL injection keywords
-                /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|TRUNCATE)\b)/gi,
+                /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION|TRUNCATE|GRANT|REVOKE)\b)/gi, // Added more SQL DDL/DCL
                 /(--|\/\*|\*\/)/g, // SQL comments
-                /(\b(OR|AND)\s+\d+\s*=\s*\d+)/gi, // Common boolean-based SQLi
-                // ⭐ MODIFIED: Removed the single quote '\'' from this pattern
-                /(\";|\"|\s*(OR|AND))/gi, // Quote termination and logical ops
-                /(\bxp_cmdshell\b|\bsp_executesql\b)/gi, // Stored procedures
+                // ⭐ MODIFIED: Removed the overly broad /\s*(OR|AND)/ pattern.
+                // We're now focusing on combinations that are highly suspicious,
+                // relying on parameterized queries for the primary defense.
+                /(\s*(OR|AND)\s*\d+\s*=\s*\d+)/gi, // "OR 1=1"
+                /(\s*(OR|AND)\s*[a-zA-Z0-9_]+\s*=\s*[a-zA-Z0-9_]+)/gi, // "OR username=username"
+                /(\bWAITFOR\s+DELAY\b|\bSLEEP\b)/gi, // Time-based blind SQLi
+                /(\bXP_CMDSHELL\b|\bSP_EXECUTESQL\b|\bEXECUTE\s+AS\b|\bRECONFIGURE\b)/gi, // Stored procedures and dangerous commands
+                /(\bINTO\s+OUTFILE\b|\bLOAD_FILE\b)/gi, // File operations
+                /(\bCAST\b|\bCONVERT\b)\s*\(.*?\s*AS\s*(N)?VARCHAR\b/gi, // Type conversion in context
+                /(\b(char|nchar|varchar|nvarchar|string|text|binary|varbinary|blob|image)\b\s*\(?\s*\d*\s*\)?\s*(FROM|FOR)\s+(CHAR|ASCII|HEX)\b)/gi, // Obfuscated strings
+                /(\bFROM\s+INFORMATION_SCHEMA\b|\bSYSOBJECTS\b|\bPG_CATALOG\b)/gi, // Schema discovery
+                /(\bORDER\s+BY\s+\d+#|\bORDER\s+BY\s+\d+--)/gi // Order by injection
             ],
             xss: [
                 // Basic XSS vectors (more comprehensive sanitization happens with DOMPurify)
@@ -90,14 +98,17 @@ class EnhancedTextPreprocessor {
                 /javascript:/gi, // Javascript URIs
                 /on\w+\s*=/gi, // Event handlers (e.g., onerror=, onload=)
                 /<iframe[^>]*>.*?<\/iframe>/gis, // Iframes for content injection
-                /<img[^>]*src\s*=\s*['"]?javascript:/gi // Image XSS
+                /<img[^>]*src\s*=\s*['"]?javascript:/gi, // Image XSS
+                /expression\(/gi, // CSS expressions
+                /data:[^;]*;base64,/gi // Base64 encoded data URIs (can be XSS vector)
             ],
             command: [
-                // Command injection attempts (semicolon removed previously)
-                /(\||&|\$\(|\`)/g, // Shell metacharacters (pipe, ampersand, dollar-parentheses, backtick)
+                // Command injection attempts
+                /(\||&|\$\(|\`|;)/g, // Shell metacharacters (pipe, ampersand, dollar-parentheses, backtick, semicolon)
                 /(rm\s+-rf|del\s+\/f|format\s+)/gi, // Destructive commands
                 /(wget|curl)\s+http/gi, // External command execution
-                /(cat|ls|dir)\s+/gi // Information disclosure commands
+                /(cat|ls|dir)\s+/gi, // Information disclosure commands
+                /(\bSH\b|\bBASH\b|\bCMD\b|\bPOWERSHELL\b)/gi // Explicit shell calls
             ]
         };
 
@@ -331,7 +342,7 @@ class EnhancedTextPreprocessor {
      * @param {number} maxLength The maximum allowed length.
      * @returns {string} The truncated text with an ellipsis if truncated.
      */
-    validateAndTruncate(text, maxLength = 4000) {
+    validateAndTruncate(text, maxLength = 4000) { // Default maxLength here
         if (text.length <= maxLength) return text;
 
         // Smart truncation at sentence boundaries
@@ -387,7 +398,6 @@ class EnhancedTextPreprocessor {
         optimizedText = optimizedText.replace(/\b(so therefore)\b/gi, 'so');
 
         // Remove common conjunctions if they appear too frequently (simple heuristic)
-        optimizedText = optimizedText.replace(/\b(and|or|but|so)\s+(and|or|but|so)\b/gi, '$2');
         optimizedText = optimizedText.replace(/\b(that)\s+\b/gi, ' '); // Remove isolated 'that' often
         optimizedText = optimizedText.replace(/\b(which)\s+\b/gi, ' '); // Remove isolated 'which' often
 
@@ -406,8 +416,8 @@ class EnhancedTextPreprocessor {
      */
     preprocessForOpenAI(text, options = {}) {
         const {
-            maxLength = 4000,
-            targetTokenReduction = 0.4, // Target percentage reduction (e.g., 0.4 for 40%)
+            maxLength = 4000, // Default for this method, can be overridden by options
+            targetTokenReduction = 0.4,
             aggressiveOptimization = false,
             // openAIModel = 'gpt-3.5-turbo' // Future: for model-specific optimizations
         } = options;
@@ -415,7 +425,7 @@ class EnhancedTextPreprocessor {
         if (!text || !text.trim()) {
             return {
                 processedText: '',
-                securityIssues: {},
+                securityIssues: { sql: [], xss: [], command: [] }, // Ensure these are always arrays
                 originalStats: { characters: 0, words: 0, estimatedTokens: 0 },
                 processedStats: { characters: 0, words: 0, estimatedTokens: 0 },
                 tokenReduction: 0,
@@ -433,6 +443,7 @@ class EnhancedTextPreprocessor {
         // Step 1: Security check and sanitization (FIRST and always)
         const securityIssues = this.detectSecurityThreats(processedText);
         if (Object.values(securityIssues).some(arr => arr.length > 0)) {
+            // Apply sanitization even if blocking later, to clean the log/potential remnants
             processedText = this.sanitizeForSecurity(processedText);
             warnings.push("Security threats detected and sanitized.");
             optimizations.push("Security sanitization applied.");
@@ -468,7 +479,7 @@ class EnhancedTextPreprocessor {
 
         // Step 5: Final length validation and truncation
         const beforeTruncation = processedText.length;
-        processedText = this.validateAndTruncate(processedText, maxLength);
+        processedText = this.validateAndTruncate(processedText, maxLength); // Use the passed maxLength
         if (processedText.length < beforeTruncation) {
             warnings.push(`Content truncated to ${maxLength} characters.`);
         }
