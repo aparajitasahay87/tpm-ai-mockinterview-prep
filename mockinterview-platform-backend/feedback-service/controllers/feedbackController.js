@@ -1,8 +1,8 @@
 const openAIService = require('../services/openaiService');
 const AIFeedbackProcessor = require('../processors/AIfeedbackProcessor');
 // Import the EnhancedTextPreprocessor module
-const EnhancedTextPreprocessor = require('../processors/EnhancedTextPreprocessor'); // Adjust path as needed
-const textProcessor = new EnhancedTextPreprocessor(); // Instantiate the preprocessor
+const EnhancedTextPreprocessor = require('../processors/EnhancedTextPreprocessor'); 
+const textProcessor = new EnhancedTextPreprocessor(); 
 
 const { query } = require('../config/database');
 
@@ -53,7 +53,7 @@ exports.getInterviewFeedback = async (req, res) => {
         if (Object.values(preprocessingResult.securityIssues).some(arr => arr.length > 0)) {
              console.warn('Backend: Blocking request due to detected security threats:', preprocessingResult.securityIssues);
              return res.status(403).json({ error: 'Your input contains special characters or patterns that were blocked for security. Please review and try again.'});
-        
+        }
 
         // Check user's admin status and feedback count
         console.log('Backend: Checking user eligibility for AI feedback...');
