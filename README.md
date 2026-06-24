@@ -1,70 +1,79 @@
-# Getting Started with Create React App
+# TPM AI Mock Interview Prep
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+AI-powered mock interview prep platform built to help TPM candidates practice real interview scenarios with structured feedback, LLM-based evaluation, and a product-minded learning loop.
 
-## Available Scripts
+## Why this project
+I built this to turn TPM interview prep from abstract theory into a hands-on product and system design exercise. The goal was to create something that reflects how modern TPMs think: define the problem, make tradeoffs, design the system, and iterate quickly [page:1].
 
-In the project directory, you can run:
+## What it does
+- Generates TPM-style mock interview questions.
+- Captures candidate responses in a structured flow.
+- Uses LLMs to evaluate answers and provide feedback.
+- Supports iterative practice and improvement.
+- Demonstrates end-to-end product thinking from idea to implementation [page:1].
 
-### `npm start`
+## What it shows
+- **Technical Program Management:** Breaking down ambiguity, driving execution, and making tradeoffs.
+- **AI / LLM Product Skills:** Prompt engineering, evaluation design, and feedback loops.
+- **System Design:** Modular architecture, scalability thinking, and service separation.
+- **Product Judgment:** Choosing the right tools, balancing cost, quality, and maintainability [page:1].
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Architecture highlights
+- Microservices-style separation for auth, questions, and feedback.
+- PostgreSQL with JSONB for flexible AI feedback storage.
+- OpenAI API integration with prompt optimization.
+- Firebase Authentication for secure user management.
+- Deployment and debugging experience across services [page:1].
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Key learnings
+- LLM output quality improves dramatically with structured prompts.
+- Good system design comes from clear tradeoffs, not just clean diagrams.
+- Managed services can accelerate delivery without sacrificing quality.
+- Owning the code means understanding it deeply, even when AI helps build it [page:1].
 
-### `npm test`
+## Roadmap
+- Add caching for faster question delivery.
+- Improve feedback latency with async processing.
+- Add voice-based interview simulation.
+- Expand analytics for candidate progress.
+- Explore personalization and model refinement [page:1].
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Architecture
 
-### `npm run build`
+```mermaid
+flowchart TD
+    A[User / TPM Candidate] --> B[Frontend App]
+    B --> C[Auth Layer]
+    B --> D[Mock Interview Engine]
+    D --> E[Question Generator]
+    D --> F[Response Capture]
+    F --> G[LLM Evaluation Service]
+    G --> H[Feedback Engine]
+    H --> I[Results / Progress View]
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+    E --> J[(Prompt Templates)]
+    G --> K[(Evaluation Rubric)]
+    H --> L[(Session History)]
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+    subgraph App Layer
+        B
+        C
+        D
+    end
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+    subgraph AI Layer
+        E
+        F
+        G
+        H
+    end
 
-### `npm run eject`
+    subgraph Data Layer
+        J
+        K
+        L
+    end
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Related write-up
+[Read the full blog post](https://medium.com/@aparajita.sahay87/from-theory-to-practice-what-building-my-own-tpm-interview-prep-app-taught-me-about-system-design-ddece00156b6) [page:1]
