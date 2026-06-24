@@ -18,21 +18,26 @@ TPM interview prep is often expensive, abstract, and disconnected from real-worl
 
 ## Architecture
 
+```mermaid
 flowchart TD
-    FE[Frontend: React SPA]
-    AUTH[Auth Service: JWT]
-    QS[Question Service]
-    FS[Feedback Service]
-    LLM[OpenAI / LLM Inference]
-    DB[(PostgreSQL DB)]
+    U[User / TPM Candidate] --> FE[Frontend: React SPA]
 
-    FE --> AUTH
-    FE --> QS
-    FE --> FS
-    QS --> DB
-    FS --> LLM
-    FS --> DB
+    FE --> AUTH[Firebase Auth]
+    FE --> QS[Question Service]
+    QS --> DB[(PostgreSQL DB\nQuestions)]
+
+    FE --> IS[Interview / Response Service]
+    IS --> LLM1[LLM Call 1\nGeneric Prompt + Question + User Response]
+
+    IS --> FS[Feedback Service]
+    FS --> LLM2[LLM Call 2\nFeedback Prompt + Response Output]
+
+    LLM1 --> FE
+    LLM2 --> FE
+
     AUTH --> DB
+    FS --> DB
+```
 
 ## What this shows
 
